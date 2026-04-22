@@ -8,7 +8,7 @@ void GameScene::Initialize() {
 	// スプライトインスタンスの生成
 	sprite_ = KamataEngine::Sprite::Create(textureHandle_, {100, 50});
 	// ファイル名を指定してテクスチャを読み込む
-	textureHandle_ = KamataEngine::TextureManager::Load("mario.jpg");
+	textureHandle_2 = KamataEngine::TextureManager::Load("cube.jpg");
 	// 3Dモデルの生成
 	model_ = KamataEngine::Model::Create();
 	// ワールドトランスフォームの初期化
@@ -72,13 +72,30 @@ void GameScene::Draw() {
 	// 3Dモデル描画前処理
 	KamataEngine::Model::PreDraw();
 	// 3Dモデル描画
-	model_->Draw(worldTransform_, camera_, textureHandle_);
-	model_->Draw(worldTransform_, debugCamera_->GetCamera(), textureHandle_);
+	model_->Draw(worldTransform_, camera_, textureHandle_2);
+	model_->Draw(worldTransform_, debugCamera_->GetCamera(), textureHandle_2);
 
 	// 3Dモデル描画後処理
 	KamataEngine::Model::PostDraw();
+
+
 	// ライン描画する
-	KamataEngine::PrimitiveDrawer::GetInstance()->DrawLine3d({0, 0, 0}, {0, 10, 0}, {1.0f, 0.0f, 0.0f, 1.0f});
+	KamataEngine::PrimitiveDrawer::GetInstance()->SetCamera(&debugCamera_->GetCamera());
+	const float kGridSize = 15.0f;
+	const int kSubdivision = 20;
+
+	const float kSpace = (kGridSize * 2.0f) / kSubdivision;
+
+	for (int i = 0; i <= kSubdivision; i++)
+	{
+		float offset = -kGridSize + (static_cast<float>(i) * kSpace);
+
+		KamataEngine::PrimitiveDrawer::GetInstance()->DrawLine3d({-kGridSize, 0.0f, offset}, {kGridSize, 0.0f, offset}, {0.8f, 0.0f, 0.0f, 1.0f});
+
+		KamataEngine::PrimitiveDrawer::GetInstance()->DrawLine3d({offset, 0.0f, -kGridSize}, {offset, 0.0f, kGridSize}, {0.0f, 0.0f, 0.8f, 1.0f});
+
+
+	}
 
 }
 
