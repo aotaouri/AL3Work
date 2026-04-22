@@ -4,7 +4,7 @@
 
 void GameScene::Initialize() {
 	// ファイル名を指定してテクスチャを読み込む
-	textureHandle_ = KamataEngine::TextureManager::Load("uvchecker.png");
+	textureHandle_ = KamataEngine::TextureManager::Load("uvChecker.png");
 	// スプライトインスタンスの生成
 	sprite_ = KamataEngine::Sprite::Create(textureHandle_, {100, 50});
 	// ファイル名を指定してテクスチャを読み込む
