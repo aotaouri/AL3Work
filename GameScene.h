@@ -6,6 +6,8 @@ class GameScene {
 	private:
     //テクスチャハンドル
 	uint32_t textureHandle_ = 0;
+    //テクスチャハンドル
+	uint32_t textureHandle_2 = 0;
 	//サウンドデータハンドル
 	uint32_t soundDataHandle_ = 0;
 	//音声再生ハンドル

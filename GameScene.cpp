@@ -4,11 +4,11 @@
 
 void GameScene::Initialize() {
 	// ファイル名を指定してテクスチャを読み込む
-	textureHandle_ = KamataEngine::TextureManager::Load("uvchecker.png");
+	textureHandle_ = KamataEngine::TextureManager::Load("uvChecker.png");
 	// スプライトインスタンスの生成
 	sprite_ = KamataEngine::Sprite::Create(textureHandle_, {100, 50});
 	// ファイル名を指定してテクスチャを読み込む
-	textureHandle_ = KamataEngine::TextureManager::Load("mario.jpg");
+	textureHandle_2 = KamataEngine::TextureManager::Load("cube.jpg");
 	// 3Dモデルの生成
 	model_ = KamataEngine::Model::Create();
 	// ワールドトランスフォームの初期化
@@ -21,16 +21,15 @@ void GameScene::Initialize() {
 	voiceHandle_ = KamataEngine::Audio::GetInstance()->PlayWave(soundDataHandle_, true);
 	// ライン描画が参照するカメラを指定する(アドレス渡し)
 	KamataEngine::PrimitiveDrawer::GetInstance()->SetCamera(&camera_);
-
+	
 	// デバックカメラの生成
 	debugCamera_ = new KamataEngine::DebugCamera(1280, 720);
 
-	//軸方向表示の表示を有効にする
+	// 軸方向表示の表示を有効にする
 	KamataEngine::AxisIndicator::GetInstance()->SetVisible(true);
 
-	//軸方向表示が参照するビュープロジェクションを指定する(アドレス渡し)
+	// 軸方向表示が参照するビュープロジェクションを指定する(アドレス渡し)
 	KamataEngine::AxisIndicator::GetInstance()->SetTargetCamera(&debugCamera_->GetCamera());
-
 }
 
 void GameScene::Update() {
@@ -72,14 +71,29 @@ void GameScene::Draw() {
 	// 3Dモデル描画前処理
 	KamataEngine::Model::PreDraw();
 	// 3Dモデル描画
-	model_->Draw(worldTransform_, camera_, textureHandle_);
-	model_->Draw(worldTransform_, debugCamera_->GetCamera(), textureHandle_);
+	model_->Draw(worldTransform_, camera_, textureHandle_2);
+	model_->Draw(worldTransform_, debugCamera_->GetCamera(), textureHandle_2);
 
 	// 3Dモデル描画後処理
 	KamataEngine::Model::PostDraw();
+
 	// ライン描画する
 	KamataEngine::PrimitiveDrawer::GetInstance()->DrawLine3d({0, 0, 0}, {0, 10, 0}, {1.0f, 0.0f, 0.0f, 1.0f});
 
+	KamataEngine::PrimitiveDrawer::GetInstance()->SetCamera(&debugCamera_->GetCamera());
+
+	const float kGridSize = 15.0f;
+	const int kSubdivision = 20;
+
+	const float kSpace = (kGridSize * 2.0f) / kSubdivision;
+
+	for (int i = 0; i <= kSubdivision; i++) {
+		float offset = -kGridSize + (static_cast<float>(i) * kSpace);
+
+		KamataEngine::PrimitiveDrawer::GetInstance()->DrawLine3d({-kGridSize, 0.0f, offset}, {kGridSize, 0.0f, offset}, {0.8f, 0.0f, 0.0f, 1.0f});
+
+		KamataEngine::PrimitiveDrawer::GetInstance()->DrawLine3d({offset, 0.0f, -kGridSize}, {offset, 0.0f, kGridSize}, {0.0f, 0.0f, 0.8f, 1.0f});
+	}
 }
 
 GameScene::~GameScene() {
