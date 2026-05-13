@@ -3,7 +3,7 @@
 #include "Player.h"
 
 class GameScene {
-
+	
 	public:
 
 	~GameScene();
