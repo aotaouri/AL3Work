@@ -38,4 +38,10 @@ class GameScene {
 
 	void Draw();
 
+	private:
+
+	uint32_t textureHandle_ = 0;
+
+
+
 };
