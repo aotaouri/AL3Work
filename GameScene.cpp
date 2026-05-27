@@ -8,15 +8,28 @@ void GameScene::Initialize() {
 	textureHandle_ = KamataEngine::TextureManager::Load("uvChecker.png");
 	textureHandle_2 = KamataEngine::TextureManager::Load("cube.jpg");
 
+
 	model_ = KamataEngine::Model::Create();
 
 	camera_ = new KamataEngine::Camera();
 	camera_->Initialize();
 
+	// 3Dモデルの生成(天球)
+	modelSkydome_ = KamataEngine::Model::CreateFromOBJ("skydome", true);
+
 	// 自キャラの生成
 	player_ = new Player();
 	// 自キャラの初期化
 	player_->Initialize(model_,textureHandle_,camera_);
+
+	//天球の生成」
+	Skydome_ = new Skydome();
+	//天球の初期化
+	Skydome_->Initialize(modelSkydome_, camera_);
+
+	//カメラの初期化
+	camera_->farZ = 1000.0f;
+	camera_->Initialize();
 
 	int mapData[10][20] = {
 	    {1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0},
@@ -69,11 +82,14 @@ void GameScene::Initialize() {
 	debugCamera_ = new KamataEngine::DebugCamera(1280, 720);
 	isDebugCameraActive_ = false;
 
+
 }
 
 void GameScene::Update() {
 	// 自キャラの更新
 	player_->Update();
+
+	Skydome_->Update();
 
 	for (std::vector<KamataEngine::WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
 
@@ -129,8 +145,9 @@ void GameScene::Update() {
 }
 
 void GameScene::Draw() {
-	// 自キャラの描画
-	player_->Draw();
+
+	Skydome_->Draw();
+
 	KamataEngine::Model::PreDraw();
 
 	for (std::vector<KamataEngine::WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
@@ -147,6 +164,10 @@ void GameScene::Draw() {
 		}
 	}
 	KamataEngine::Model::PostDraw();
+	
+	// 自キャラの描画
+	player_->Draw();
+
 }
 
 GameScene::~GameScene() {
@@ -155,6 +176,7 @@ GameScene::~GameScene() {
 	delete player_;
 	delete camera_;
 	delete debugCamera_;
+	delete modelSkydome_;
 
 	for (std::vector<KamataEngine::WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
 
