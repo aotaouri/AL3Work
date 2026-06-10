@@ -2,7 +2,10 @@
 #include "KamataEngine.h"
 #include "Player.h"
 #include "Skydome.h"
+#include "MapChipField.h"
 #include <vector>
+
+using namespace KamataEngine;
 
 class GameScene {
 
@@ -14,6 +17,8 @@ public:
 	void Update();
 
 	void Draw();
+
+    void GenerateBlocks();
 
 private:
 	uint32_t textureHandle_ = 0;
@@ -44,5 +49,7 @@ private:
 	//デバックカメラ
 	KamataEngine::DebugCamera* debugCamera_ = nullptr;
 
+	//マップチップフィールド
+	MapChipField* mapChipField_;
 
 };
