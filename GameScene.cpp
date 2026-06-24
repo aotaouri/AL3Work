@@ -8,34 +8,31 @@ using namespace KamataEngine;
 
 void GameScene::Initialize() {
 
-	textureHandle_ = KamataEngine::TextureManager::Load("uvChecker.png");
-	textureHandle_2 = KamataEngine::TextureManager::Load("cube.jpg");
-
-	model_ = KamataEngine::Model::Create();
-
-	camera_ = new KamataEngine::Camera();
-	camera_->Initialize();
-
+	modelblock_ = KamataEngine::Model::CreateFromOBJ("block", true);
 	// 3Dモデルの生成(天球)
 	modelSkydome_ = KamataEngine::Model::CreateFromOBJ("skydome", true);
+	modelplayer_ = KamataEngine::Model::CreateFromOBJ("player", true);
+
+	//カメラ
+	camera_ = new KamataEngine::Camera();
+	camera_->farZ = 1000.0f;
+	camera_->Initialize();
+
+	// マップチップ
+	mapChipField_ = new MapChipField();
+	mapChipField_->LoadMapChipCsv("Resources/blocks.csv");
 
 	// 自キャラの生成
 	player_ = new Player();
+	// 座標をマップチップ番号で指定
+	Vector3 playerPosition = mapChipField_->GetMapChipPositionByIndex(1, 18);
 	// 自キャラの初期化
-	player_->Initialize(model_, textureHandle_, camera_);
+	player_->Initialize(modelplayer_,camera_,playerPosition);
 
 	// 天球の生成」
 	Skydome_ = new Skydome();
 	// 天球の初期化
 	Skydome_->Initialize(modelSkydome_, camera_);
-
-	// カメラの初期化
-	camera_->farZ = 1000.0f;
-	camera_->Initialize();
-
-	// マップチップ
-	mapChipField_ = new MapChipField;
-	mapChipField_->LoadMapChipCsv("Resources/blocks.csv");
 
 	GenerateBlocks();
 
@@ -115,7 +112,7 @@ void GameScene::Update() {
 
 	// カメラの処理
 	if (isDebugCameraActive_) {
-		debugCamera_->Update();
+		
 
 		camera_->matView = debugCamera_->GetCamera().matView;
 		camera_->matProjection = debugCamera_->GetCamera().matProjection;
@@ -141,7 +138,7 @@ void GameScene::Draw() {
 				continue;
 			}
 
-			model_->Draw(*worldTransformBlock, *camera_);
+			modelblock_->Draw(*worldTransformBlock, *camera_);
 		}
 	}
 	KamataEngine::Model::PostDraw();
@@ -152,13 +149,15 @@ void GameScene::Draw() {
 
 GameScene::~GameScene() {
 
-	delete model_;
 	delete player_;
+	delete Skydome_;
 	delete camera_;
 	delete debugCamera_;
-	delete modelSkydome_;
-	// マップチップフィールドの解散
 	delete mapChipField_;
+	delete modelplayer_;
+	delete modelSkydome_;
+	delete modelblock_;
+
 
 	for (std::vector<KamataEngine::WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
 

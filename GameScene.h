@@ -21,12 +21,13 @@ public:
     void GenerateBlocks();
 
 private:
-	uint32_t textureHandle_ = 0;
-
-	uint32_t textureHandle_2 = 0;
 
 	// 3Dモデル
-	KamataEngine::Model* model_ = nullptr;
+	//プレイヤー
+	KamataEngine::Model* modelplayer_ = nullptr;
+
+	//ブロック
+	KamataEngine::Model* modelblock_ = nullptr;
 
 	// カメラ
 	KamataEngine::Camera* camera_;
@@ -35,7 +36,6 @@ private:
 	Player* player_ = nullptr;
 
 	std::vector<std::vector<KamataEngine::WorldTransform*>> worldTransformBlocks_;
-
 
 	// 3Dモデル
 	KamataEngine::Model* modelSkydome_ = nullptr;

@@ -1,24 +1,51 @@
 #pragma once
 #include "KamataEngine.h"
+#include "WorldTransform.h"
+
+using namespace KamataEngine;
 
 class Player {
 
-	public:
+public:
+	void Initialize(KamataEngine::Model* model, KamataEngine::Camera* camera, const Vector3& position);
 
-		void Initialize(KamataEngine::Model* model,uint32_t textureHandle,KamataEngine::Camera* camera);
+	void Update();
 
-	    void Update();
+	void Draw();
 
-	    void Draw();
+	// 方向を表すenum
+	enum class LRDirection {
+		kRight,
+		kLeft,
+	};
 
-		private:
+private:
+	KamataEngine::WorldTransform worldTransform_;
 
-			KamataEngine::WorldTransform worldTransform_;
+	KamataEngine::Model* model_ = nullptr;
 
-			KamataEngine::Model* model_ = nullptr;
+	KamataEngine::Camera* camera_ = nullptr;
 
-			KamataEngine::Camera* camera_ = nullptr;
+	Vector3 velocity_ = {};
 
-			uint32_t textureHandle_ = 0u;
+	static inline const float kAcceleration = 0.05f;
+
+	static inline const float kAttenuation = 0.2f;
+
+	static inline const float kLimitRunSpeed = 1.0f;
+
+	LRDirection lrDirection_ = LRDirection::kRight;
+
+	float turnFirstRotationY_ = 0.0f;
+
+	float turnTimer_ = 0.0f;
+
+	static inline const float kTimeTurn = 0.3f;
+
+	//ジャンプ
+	bool onGround_ = true;
+	static inline const float kGravityAcceleration = 0.05f;
+	static inline const float kLimitFallSpeed = 1.0f;
+	static inline const float kJumpAcceleration = 1.0f;
 
 };
