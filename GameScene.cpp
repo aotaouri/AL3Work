@@ -1,6 +1,7 @@
 #include "GameScene.h"
 #include "KamataEngine.h"
 #include "MapChipField.h"
+#include "CameraController.h"
 #include "Matrix4x4.h"
 #include "MyMath.h"
 
@@ -28,6 +29,14 @@ void GameScene::Initialize() {
 	Vector3 playerPosition = mapChipField_->GetMapChipPositionByIndex(1, 18);
 	// 自キャラの初期化
 	player_->Initialize(modelplayer_,camera_,playerPosition);
+
+	// カメラコントローラの生成と初期化
+	cameraController_ = new CameraController();
+	cameraController_->Initialize(camera_);
+	cameraController_->SetTarget(player_);
+	Rect area = {14.5f, 84.5f, 8.0f, 20.0f};
+	cameraController_->SetMovableArea(area);
+	cameraController_->Reset();
 
 	// 天球の生成」
 	Skydome_ = new Skydome();
@@ -73,6 +82,10 @@ void GameScene::GenerateBlocks()
 void GameScene::Update() {
 	// 自キャラの更新
 	player_->Update();
+
+	if (!isDebugCameraActive_ && cameraController_) {
+		cameraController_->Update();
+	}
 
 	Skydome_->Update();
 
@@ -120,7 +133,7 @@ void GameScene::Update() {
 		camera_->TransferMatrix();
 	} else {
 		// ビュープロジェンクション行列の更新と転送
-		camera_->UpdateMatrix();
+		
 	}
 }
 
@@ -150,6 +163,7 @@ void GameScene::Draw() {
 GameScene::~GameScene() {
 
 	delete player_;
+	delete cameraController_;
 	delete Skydome_;
 	delete camera_;
 	delete debugCamera_;

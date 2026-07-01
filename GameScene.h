@@ -4,6 +4,7 @@
 #include "Skydome.h"
 #include "MapChipField.h"
 #include <vector>
+#include "CameraController.h"
 
 using namespace KamataEngine;
 
@@ -51,5 +52,7 @@ private:
 
 	//マップチップフィールド
 	MapChipField* mapChipField_;
+
+	CameraController* cameraController_ = nullptr;
 
 };

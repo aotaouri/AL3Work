@@ -13,6 +13,10 @@ public:
 
 	void Draw();
 
+	const KamataEngine::WorldTransform& GetWorldTransform() const { return worldTransform_; }
+
+	const KamataEngine::Vector3& GetVelocity() const { return velocity_; }
+
 	// 方向を表すenum
 	enum class LRDirection {
 		kRight,
