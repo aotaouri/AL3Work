@@ -4,6 +4,16 @@
 
 using namespace KamataEngine;
 
+class MapChipField;
+
+// マップとの当たり判定情報
+struct CollisionMapInfo {
+	bool top = false;
+	bool stand = false;
+	bool wole = false;
+	Vector3 velocity;
+};
+
 class Player {
 
 public:
@@ -12,6 +22,8 @@ public:
 	void Update();
 
 	void Draw();
+
+	void SetMapChipField(MapChipField* mapChipField) { mapChipField_ = mapChipField; }
 
 	const KamataEngine::WorldTransform& GetWorldTransform() const { return worldTransform_; }
 
@@ -24,6 +36,33 @@ public:
 	};
 
 private:
+
+	void Move();
+
+	void MapCollision(struct CollisionMapInfo& info);
+
+	void MapCollisionTop(struct CollisionMapInfo& info);    // 上方向
+	void MapCollisionBottom(struct CollisionMapInfo& info); // 下方向
+	void MapCollisionRight(struct CollisionMapInfo& info);  // 右方向
+	void MapCollisionLeft(struct CollisionMapInfo& info);   // 左方向
+
+	void RVelocity(const CollisionMapInfo& info);
+
+	void topTache(const CollisionMapInfo& info);
+
+	// 角
+	enum Corner {
+		kRightBottom, // 右下
+		kLeftBottom,  // 左下
+		kRightTop,    // 右上
+		kLeftTop,     // 左上
+
+		kNumCorner // 要素数
+
+	};
+
+	Vector3 CornerPosition(const Vector3& center, Corner corner);
+
 	KamataEngine::WorldTransform worldTransform_;
 
 	KamataEngine::Model* model_ = nullptr;
@@ -46,10 +85,17 @@ private:
 
 	static inline const float kTimeTurn = 0.3f;
 
+	MapChipField* mapChipField_ = nullptr;
+
 	//ジャンプ
 	bool onGround_ = true;
 	static inline const float kGravityAcceleration = 0.05f;
 	static inline const float kLimitFallSpeed = 1.0f;
 	static inline const float kJumpAcceleration = 1.0f;
+
+    static inline const float kWidth = 0.8f;
+	static inline const float kHeight = 0.8f;
+
+	static inline const float kBlank = 0.0f;
 
 };

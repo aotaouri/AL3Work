@@ -14,6 +14,19 @@ struct MapChipData {
 	std::vector<std::vector<MapChipType>> data;
 };
 
+struct IndexSet {
+	uint32_t xIndex;
+	uint32_t yIndex;
+
+};
+
+struct Lect {
+	float left;  //左端
+	float right; //右端
+	float bottom;//下端
+	float top;   //上端
+
+};
 
 class MapChipField {
 public:
@@ -36,6 +49,10 @@ public:
     
     // 横方向のブロック数を返す関数
     uint32_t GetNumBlockHorizontal() const { return kNumBlockHorizontal; }
+
+	IndexSet GetMapChipIndexSetByPosition(const Vector3& position);
+	
+	Lect GetRectByIndex(uint32_t xIndex, uint32_t yIndex);
 
 	private:
 
