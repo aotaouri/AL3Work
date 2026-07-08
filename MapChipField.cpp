@@ -1,10 +1,10 @@
 #include "MapChipField.h"
+#include <KamataEngine.h>
 #include <fstream>
 #include <map>
 #include <sstream>
 #include <string>
 #include <vector>
-#include <KamataEngine.h>
 
 using namespace KamataEngine;
 
@@ -72,21 +72,18 @@ MapChipType MapChipField::GetMapChipTypeByIndex(uint32_t xIndex, uint32_t yIndex
 	return mapChipData_.data[yIndex][xIndex];
 }
 
-Vector3 MapChipField::GetMapChipPositionByIndex(uint32_t xIndex, uint32_t yIndex)
-{
-	return Vector3(kBlockWidth * xIndex, kBlockHeight * (kNumBlockVirtical - 1 - yIndex), 0); 
-}
+Vector3 MapChipField::GetMapChipPositionByIndex(uint32_t xIndex, uint32_t yIndex) { return Vector3(kBlockWidth * xIndex, kBlockHeight * (kNumBlockVirtical - 1 - yIndex), 0); }
 
 IndexSet MapChipField::GetMapChipIndexSetByPosition(const Vector3& position) {
 	IndexSet indexSet = {};
 
 	// 1. ⭐️X座標から列番号(xIndex)を逆算する
 	// X座標を1マスの幅で割り算します
-	indexSet.xIndex = static_cast<uint32_t>(position.x / kBlockWidth);
+	indexSet.xIndex = static_cast<uint32_t>((position.x + kBlockWidth / 2) / kBlockWidth);
 
 	// 2. ⭐️Y座標から行番号(yIndex)を逆算する
 	// 2Dの配列（上から0行、1行...）と3D空間（上がYプラス）の上下反転を考慮した逆算式です
-	indexSet.yIndex = static_cast<uint32_t>((kNumBlockVirtical - 1) - (position.y / kBlockHeight));
+	indexSet.yIndex = static_cast<uint32_t>((kNumBlockVirtical - 1) - (position.y - kBlockHeight / 2) / kBlockHeight);
 
 	return indexSet;
 }

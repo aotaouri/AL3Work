@@ -10,7 +10,7 @@ class MapChipField;
 struct CollisionMapInfo {
 	bool top = false;
 	bool stand = false;
-	bool wole = false;
+	bool hitWall = false;
 	Vector3 velocity;
 };
 
@@ -46,9 +46,13 @@ private:
 	void MapCollisionRight(struct CollisionMapInfo& info);  // 右方向
 	void MapCollisionLeft(struct CollisionMapInfo& info);   // 左方向
 
+	void UpdateGroundState(const CollisionMapInfo& info);
+
 	void RVelocity(const CollisionMapInfo& info);
 
 	void topTache(const CollisionMapInfo& info);
+
+	void MapCollisionWall(const CollisionMapInfo& info);
 
 	// 角
 	enum Corner {
@@ -75,7 +79,10 @@ private:
 
 	static inline const float kAttenuation = 0.2f;
 
-	static inline const float kLimitRunSpeed = 1.0f;
+	// 着地時の速度減速
+	static inline const float kAttenuationLanding = 0.2f;
+
+	static inline const float kLimitRunSpeed = 0.5f;
 
 	LRDirection lrDirection_ = LRDirection::kRight;
 
@@ -84,6 +91,8 @@ private:
 	float turnTimer_ = 0.0f;
 
 	static inline const float kTimeTurn = 0.3f;
+
+	static inline const float kAttenuationWall = 0.2f;
 
 	MapChipField* mapChipField_ = nullptr;
 
@@ -97,5 +106,6 @@ private:
 	static inline const float kHeight = 0.8f;
 
 	static inline const float kBlank = 0.0f;
+
 
 };
