@@ -13,6 +13,7 @@ void GameScene::Initialize() {
 	// 3Dモデルの生成(天球)
 	modelSkydome_ = KamataEngine::Model::CreateFromOBJ("skydome", true);
 	modelplayer_ = KamataEngine::Model::CreateFromOBJ("player", true);
+	modelenemy_ = KamataEngine::Model::CreateFromOBJ("enemy", true);
 
 	//カメラ
 	camera_ = new KamataEngine::Camera();
@@ -31,6 +32,12 @@ void GameScene::Initialize() {
 	player_->Initialize(modelplayer_,camera_,playerPosition);
 
 	player_->SetMapChipField(mapChipField_);
+
+	//敵
+	enemy_ = new Enemy();
+	Vector3 enemyPosition = mapChipField_->GetMapChipPositionByIndex(10, 18);
+
+	enemy_->Initialize(modelenemy_, camera_, enemyPosition);
 
 	// カメラコントローラの生成と初期化
 	cameraController_ = new CameraController();
@@ -84,6 +91,8 @@ void GameScene::GenerateBlocks()
 void GameScene::Update() {
 	// 自キャラの更新
 	player_->Update();
+
+	enemy_->Update();
 
 	if (!isDebugCameraActive_ && cameraController_) {
 		cameraController_->Update();
@@ -160,6 +169,8 @@ void GameScene::Draw() {
 
 	// 自キャラの描画
 	player_->Draw();
+
+	enemy_->Draw();
 }
 
 GameScene::~GameScene() {
@@ -173,7 +184,7 @@ GameScene::~GameScene() {
 	delete modelplayer_;
 	delete modelSkydome_;
 	delete modelblock_;
-
+	delete enemy_;
 
 	for (std::vector<KamataEngine::WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
 

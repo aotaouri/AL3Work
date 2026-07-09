@@ -5,6 +5,8 @@
 #include "MapChipField.h"
 #include <vector>
 #include "CameraController.h"
+#include "Enemy.h"
+
 
 using namespace KamataEngine;
 
@@ -27,6 +29,9 @@ private:
 	//プレイヤー
 	KamataEngine::Model* modelplayer_ = nullptr;
 
+	//敵
+	KamataEngine::Model* modelenemy_ = nullptr;
+
 	//ブロック
 	KamataEngine::Model* modelblock_ = nullptr;
 
@@ -35,6 +40,8 @@ private:
 
 	// プレイヤー
 	Player* player_ = nullptr;
+
+	Enemy* enemy_ = nullptr;
 
 	std::vector<std::vector<KamataEngine::WorldTransform*>> worldTransformBlocks_;
 
