@@ -1,6 +1,7 @@
 #pragma once
 #include "KamataEngine.h"
 #include "WorldTransform.h"
+#include "MyMath.h"
 
 using namespace KamataEngine;
 
@@ -13,6 +14,8 @@ struct CollisionMapInfo {
 	bool hitWall = false;
 	Vector3 velocity;
 };
+
+class Enemy;
 
 class Player {
 
@@ -28,6 +31,15 @@ public:
 	const KamataEngine::WorldTransform& GetWorldTransform() const { return worldTransform_; }
 
 	const KamataEngine::Vector3& GetVelocity() const { return velocity_; }
+
+	// ワールド座標を取得
+	Vector3 GetWorldPosition();
+
+	//AABBを取得
+	AABB GetAABB();
+
+	// 衝突応答
+	void OnCollision(const Enemy* enemy);
 
 	// 方向を表すenum
 	enum class LRDirection {

@@ -1,3 +1,4 @@
+#define NOMINMAX
 #include "Enemy.h"
 #include <cmath>
 #include "KamataEngine.h"
@@ -50,6 +51,25 @@ void Enemy::Update()
 	// 行列を定数バッファに転送
 	worldTransform_.TransferMatrix();
 
+}
+
+AABB Enemy::GetAABB() 
+{
+	// 敵のワールド座標を取得（EnemyクラスにGetWorldPositionが無い場合は、worldTransform_.translation_ など適切な座標指定にしてください）
+	Vector3 worldPos = worldTransform_.translation_;
+
+	AABB aabb;
+
+	// 敵のサイズ定数（kWidth, kHeight）を使って計算
+	aabb.min = {worldPos.x - kWidth / 2.0f, worldPos.y - kHeight / 2.0f, worldPos.z - kWidth / 2.0f};
+	aabb.max = {worldPos.x + kWidth / 2.0f, worldPos.y + kHeight / 2.0f, worldPos.z + kWidth / 2.0f};
+
+	return aabb;
+}
+
+void Enemy::OnCollision(const Player* player) 
+{ 
+	(void)player;
 }
 
 void Enemy::Draw()

@@ -23,6 +23,9 @@ public:
 
     void GenerateBlocks();
 
+	// 全ての当たり判定を行う
+	void CheckAllCollisions();
+
 private:
 
 	// 3Dモデル
@@ -41,7 +44,7 @@ private:
 	// プレイヤー
 	Player* player_ = nullptr;
 
-	Enemy* enemy_ = nullptr;
+	std::list<Enemy*> enemies_;
 
 	std::vector<std::vector<KamataEngine::WorldTransform*>> worldTransformBlocks_;
 

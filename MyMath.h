@@ -15,3 +15,13 @@ KamataEngine::Matrix4x4 MakeRotationMatrix(const KamataEngine::Vector3& rotation
 
 // 拡大
 KamataEngine::Matrix4x4 MakeScaleMatrix(const KamataEngine::Vector3& scale);
+
+struct AABB 
+{
+	KamataEngine::Vector3 min;
+	KamataEngine::Vector3 max;
+
+};
+
+
+bool IsCollision(const AABB& aabb1, const AABB& aabb2);
