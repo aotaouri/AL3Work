@@ -91,6 +91,27 @@ KamataEngine::Matrix4x4 MakeRotationMatrix(const KamataEngine::Vector3& rotation
 	return result;
 }
 
+KamataEngine::Matrix4x4 MakeTranslateZMatrix(const float angle) 
+{
+	float sz = std::sin(angle);
+	float cz = std::cos(angle);
+
+
+	// 4. Z軸回転行列
+	Matrix4x4 matZ = {cz, sz, 0, 0, -sz, cz, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1};
+
+	return matZ;
+}
+
+KamataEngine::Vector3 Transform(const Vector3& vector, const Matrix4x4& mat)
+{
+	float x = mat.m[0][0] * vector.x + mat.m[0][1] * vector.y + mat.m[0][2] * vector.z;
+	float y = mat.m[1][0] * vector.x + mat.m[1][1] * vector.y + mat.m[1][2] * vector.z;
+	float z = mat.m[2][0] * vector.x + mat.m[2][1] * vector.y + mat.m[2][2] * vector.z;
+
+	return Vector3(x, y, z);
+}
+
 KamataEngine::Matrix4x4 MakeScaleMatrix(const KamataEngine::Vector3& scale)
 { 
 

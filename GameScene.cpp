@@ -4,9 +4,9 @@
 #include "CameraController.h"
 #include "Matrix4x4.h"
 #include "MyMath.h"
-
 #include "Player.h"
 #include "Enemy.h"
+#include "DeathParticles.h"
 
 using namespace KamataEngine;
 
@@ -36,6 +36,11 @@ void GameScene::Initialize() {
 
 	player_->SetMapChipField(mapChipField_);
 
+	deathParticles_ = new DeathParticles;
+	modelDeathParticle_ = Model::CreateFromOBJ("deathParticle", true);
+
+	deathParticles_->Initialize(modelDeathParticle_, camera_, playerPosition);
+
 	for (int32_t i = 0; i < 3; ++i)
 	{
 		Enemy* newEnemy = new Enemy();
@@ -45,7 +50,6 @@ void GameScene::Initialize() {
 		enemies_.push_back(newEnemy);
 	}
 
-	
 	// カメラコントローラの生成と初期化
 	cameraController_ = new CameraController();
 	cameraController_->Initialize(camera_);
@@ -186,13 +190,27 @@ void GameScene::Update() {
 		// ビュープロジェンクション行列の更新と転送
 		
 	}
+
+	if (deathParticles_ != nullptr) 
+	{
+		// デスパーティクル
+		deathParticles_->Update();
+	}
+	
+
 }
 
 void GameScene::Draw() {
 
 	Skydome_->Draw();
-
+	// 自キャラの描画
+	player_->Draw();
 	KamataEngine::Model::PreDraw();
+
+	if (deathParticles_ !=nullptr)
+	{
+		deathParticles_->Draw();
+	}
 
 	for (std::vector<KamataEngine::WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
 		// ブロックの描画
@@ -206,9 +224,6 @@ void GameScene::Draw() {
 		}
 	}
 	KamataEngine::Model::PostDraw();
-
-	// 自キャラの描画
-	player_->Draw();
 
 	// 敵全体の描画
 	for (Enemy* enemy : enemies_)
@@ -228,6 +243,7 @@ GameScene::~GameScene() {
 	delete modelplayer_;
 	delete modelSkydome_;
 	delete modelblock_;
+	delete deathParticles_;
 
 	for (Enemy* enemy : enemies_) 
 	{

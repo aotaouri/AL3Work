@@ -6,7 +6,7 @@
 #include <vector>
 #include "CameraController.h"
 #include "Enemy.h"
-
+#include "DeathParticles.h"
 
 using namespace KamataEngine;
 
@@ -38,6 +38,9 @@ private:
 	//ブロック
 	KamataEngine::Model* modelblock_ = nullptr;
 
+	//デスパーティクル
+	KamataEngine::Model* modelDeathParticle_ = nullptr;
+
 	// カメラ
 	KamataEngine::Camera* camera_;
 
@@ -64,5 +67,7 @@ private:
 	MapChipField* mapChipField_;
 
 	CameraController* cameraController_ = nullptr;
+
+	DeathParticles* deathParticles_ = nullptr;
 
 };
