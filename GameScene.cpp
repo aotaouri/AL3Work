@@ -1,12 +1,14 @@
 #include "GameScene.h"
+#include "CameraController.h"
+#include "DeathParticles.h"
+#include "Enemy.h"
 #include "KamataEngine.h"
 #include "MapChipField.h"
-#include "CameraController.h"
 #include "Matrix4x4.h"
 #include "MyMath.h"
+#include "Phase.h"
 #include "Player.h"
-#include "Enemy.h"
-#include "DeathParticles.h"
+#include "TitleScene.h"
 
 using namespace KamataEngine;
 
@@ -18,7 +20,7 @@ void GameScene::Initialize() {
 	modelplayer_ = KamataEngine::Model::CreateFromOBJ("player", true);
 	modelenemy_ = KamataEngine::Model::CreateFromOBJ("enemy", true);
 
-	//カメラ
+	// カメラ
 	camera_ = new KamataEngine::Camera();
 	camera_->farZ = 1000.0f;
 	camera_->Initialize();
@@ -32,17 +34,14 @@ void GameScene::Initialize() {
 	// 座標をマップチップ番号で指定
 	Vector3 playerPosition = mapChipField_->GetMapChipPositionByIndex(1, 18);
 	// 自キャラの初期化
-	player_->Initialize(modelplayer_,camera_,playerPosition);
+	player_->Initialize(modelplayer_, camera_, playerPosition);
 
 	player_->SetMapChipField(mapChipField_);
 
-	deathParticles_ = new DeathParticles;
+	
 	modelDeathParticle_ = Model::CreateFromOBJ("deathParticle", true);
 
-	deathParticles_->Initialize(modelDeathParticle_, camera_, playerPosition);
-
-	for (int32_t i = 0; i < 3; ++i)
-	{
+	for (int32_t i = 0; i < 3; ++i) {
 		Enemy* newEnemy = new Enemy();
 		Vector3 enemyPosition = mapChipField_->GetMapChipPositionByIndex(10 + i * 2, 18);
 		newEnemy->Initialize(modelenemy_, camera_, enemyPosition);
@@ -68,12 +67,14 @@ void GameScene::Initialize() {
 	// デバッグカメラの生成
 	debugCamera_ = new KamataEngine::DebugCamera(1280, 720);
 	isDebugCameraActive_ = false;
+
+	// ゲームプレイフェーズから開始
+	phase_ = Phase::kPlay;
 }
 
-void GameScene::GenerateBlocks()
-{
+void GameScene::GenerateBlocks() {
 
-	//要素数
+	// 要素数
 	uint32_t numBlockVirtical = mapChipField_->GetNumBlockVirtical();
 	uint32_t numBlockHorizontal = mapChipField_->GetNumBlockHorizontal();
 
@@ -85,7 +86,7 @@ void GameScene::GenerateBlocks()
 		worldTransformBlocks_[i].resize(numBlockHorizontal);
 	}
 
-	//ブロックの生成
+	// ブロックの生成
 	for (uint32_t i = 0; i < numBlockVirtical; ++i) {
 		for (uint32_t j = 0; j < numBlockHorizontal; ++j) {
 			if (mapChipField_->GetMapChipTypeByIndex(j, i) == MapChipType::kBlock) {
@@ -96,7 +97,6 @@ void GameScene::GenerateBlocks()
 			}
 		}
 	}
-
 }
 
 void GameScene::CheckAllCollisions() {
@@ -124,51 +124,103 @@ void GameScene::CheckAllCollisions() {
 }
 
 void GameScene::Update() {
-	// 自キャラの更新
-	player_->Update();
 
-	//敵
-	for (Enemy* enemy : enemies_)
-	{
-		enemy->Update();
-	}
+	ChangePhase();
 
-	// 全ての当たり判定を行う
-	CheckAllCollisions();
+	switch (phase_) {
+	case Phase::kPlay:
 
-	if (!isDebugCameraActive_ && cameraController_) {
-		cameraController_->Update();
-	}
+		Skydome_->Update();
 
-	Skydome_->Update();
+		// 自キャラの更新
+		player_->Update();
 
-	for (std::vector<KamataEngine::WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
-
-		// ブロックの更新
-		for (KamataEngine::WorldTransform* worldTransformBlock : worldTransformBlockLine) {
-
-			if (!worldTransformBlock) {
-				continue;
-			}
-
-			KamataEngine::Matrix4x4 translationMatrix = MakeTranslateMatrix(worldTransformBlock->translation_);
-			KamataEngine::Matrix4x4 rotationMatrix = MakeRotationMatrix(worldTransformBlock->rotation_);
-			KamataEngine::Matrix4x4 scaleMatrix = MakeScaleMatrix(worldTransformBlock->scale_);
-
-			// アフィン変換
-			KamataEngine::Matrix4x4 worldMatrix = Multiply(scaleMatrix, rotationMatrix);
-			worldMatrix = Multiply(worldMatrix, translationMatrix);
-
-			// 定数バッファに転送する
-			worldTransformBlock->matWorld_ = worldMatrix;
-			worldTransformBlock->TransferMatrix();
-
-
+		// 敵
+		for (Enemy* enemy : enemies_) {
+			enemy->Update();
 		}
-	}
+
+		if (!isDebugCameraActive_ && cameraController_) {
+			cameraController_->Update();
+		}
+
+			// デバッグカメラの更新
+		debugCamera_->Update();
+
+		for (std::vector<KamataEngine::WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
+
+			// ブロックの更新
+			for (KamataEngine::WorldTransform* worldTransformBlock : worldTransformBlockLine) {
+
+				if (!worldTransformBlock) {
+					continue;
+				}
+
+				KamataEngine::Matrix4x4 translationMatrix = MakeTranslateMatrix(worldTransformBlock->translation_);
+				KamataEngine::Matrix4x4 rotationMatrix = MakeRotationMatrix(worldTransformBlock->rotation_);
+				KamataEngine::Matrix4x4 scaleMatrix = MakeScaleMatrix(worldTransformBlock->scale_);
+
+				// アフィン変換
+				KamataEngine::Matrix4x4 worldMatrix = Multiply(scaleMatrix, rotationMatrix);
+				worldMatrix = Multiply(worldMatrix, translationMatrix);
+
+				// 定数バッファに転送する
+				worldTransformBlock->matWorld_ = worldMatrix;
+				worldTransformBlock->TransferMatrix();
+			}
+		}
+
+
+		// 全ての当たり判定を行う
+		CheckAllCollisions();
+
+		break;
+	case Phase::kDeath:
+
+		Skydome_->Update();
+
+		// 敵
+		for (Enemy* enemy : enemies_) {
+			enemy->Update();
+		}
+
+		
+	if (deathParticles_ != nullptr) {
+			// デスパーティクル
+			deathParticles_->Update();
+		}
 
 	// デバッグカメラの更新
-	debugCamera_->Update();
+		debugCamera_->Update();
+
+		for (std::vector<KamataEngine::WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
+
+			// ブロックの更新
+			for (KamataEngine::WorldTransform* worldTransformBlock : worldTransformBlockLine) {
+
+				if (!worldTransformBlock) {
+					continue;
+				}
+
+				KamataEngine::Matrix4x4 translationMatrix = MakeTranslateMatrix(worldTransformBlock->translation_);
+				KamataEngine::Matrix4x4 rotationMatrix = MakeRotationMatrix(worldTransformBlock->rotation_);
+				KamataEngine::Matrix4x4 scaleMatrix = MakeScaleMatrix(worldTransformBlock->scale_);
+
+				// アフィン変換
+				KamataEngine::Matrix4x4 worldMatrix = Multiply(scaleMatrix, rotationMatrix);
+				worldMatrix = Multiply(worldMatrix, translationMatrix);
+
+				// 定数バッファに転送する
+				worldTransformBlock->matWorld_ = worldMatrix;
+				worldTransformBlock->TransferMatrix();
+			}
+		}
+
+		break;
+	}
+
+	
+
 
 #ifdef _DEBUG
 
@@ -180,7 +232,6 @@ void GameScene::Update() {
 
 	// カメラの処理
 	if (isDebugCameraActive_) {
-		
 
 		camera_->matView = debugCamera_->GetCamera().matView;
 		camera_->matProjection = debugCamera_->GetCamera().matProjection;
@@ -188,27 +239,52 @@ void GameScene::Update() {
 		camera_->TransferMatrix();
 	} else {
 		// ビュープロジェンクション行列の更新と転送
-		
 	}
 
-	if (deathParticles_ != nullptr) 
+}
+
+void GameScene::ChangePhase()
+{
+	switch (phase_) 
 	{
-		// デスパーティクル
-		deathParticles_->Update();
-	}
-	
+	case Phase::kPlay:
 
+		// 自キャラがデス状態
+		if (player_->IsDead()) {
+			// 死亡演出フェーズに切り替え
+			phase_ = Phase::kDeath;
+
+			// 自キャラの座標を取得
+			const Vector3& deathParticlesPosition = player_->GetWorldPosition();
+
+			// 自キャラの座標にデスパーティクルを発生、初期化
+			deathParticles_ = new DeathParticles();
+			deathParticles_->Initialize(modelDeathParticle_, camera_, deathParticlesPosition);
+		}
+
+		break;
+	case Phase::kDeath:
+
+		if (deathParticles_ && deathParticles_->IsFinished())
+		{
+			finished_ = true;
+		}
+
+		break;
+	
+	}
 }
 
 void GameScene::Draw() {
 
 	Skydome_->Draw();
+
 	// 自キャラの描画
 	player_->Draw();
+
 	KamataEngine::Model::PreDraw();
 
-	if (deathParticles_ !=nullptr)
-	{
+	if (deathParticles_ != nullptr) {
 		deathParticles_->Draw();
 	}
 
@@ -226,8 +302,7 @@ void GameScene::Draw() {
 	KamataEngine::Model::PostDraw();
 
 	// 敵全体の描画
-	for (Enemy* enemy : enemies_)
-	{
+	for (Enemy* enemy : enemies_) {
 		enemy->Draw();
 	}
 }
@@ -245,8 +320,7 @@ GameScene::~GameScene() {
 	delete modelblock_;
 	delete deathParticles_;
 
-	for (Enemy* enemy : enemies_) 
-	{
+	for (Enemy* enemy : enemies_) {
 		delete enemy;
 	}
 	enemies_.clear();

@@ -26,6 +26,10 @@ public:
 	// 全ての当たり判定を行う
 	void CheckAllCollisions();
 
+	void ChangePhase();
+
+	bool IsFinished() const { return finished_; }
+
 private:
 
 	// 3Dモデル
@@ -69,5 +73,8 @@ private:
 	CameraController* cameraController_ = nullptr;
 
 	DeathParticles* deathParticles_ = nullptr;
+
+	// 終了フラグ
+	bool finished_ = false;
 
 };

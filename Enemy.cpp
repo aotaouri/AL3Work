@@ -53,10 +53,21 @@ void Enemy::Update()
 
 }
 
+Vector3 Enemy::GetWorldPosition() const {
+	// ワールド座標を入れる変数
+	Vector3 worldPos;
+	// ワールド行列の平行移動成分を取得(ワールド座標)
+	worldPos.x = worldTransform_.matWorld_.m[3][0];
+	worldPos.y = worldTransform_.matWorld_.m[3][1];
+	worldPos.z = worldTransform_.matWorld_.m[3][2];
+
+	return worldPos;
+}
+
 AABB Enemy::GetAABB() 
 {
 	// 敵のワールド座標を取得（EnemyクラスにGetWorldPositionが無い場合は、worldTransform_.translation_ など適切な座標指定にしてください）
-	Vector3 worldPos = worldTransform_.translation_;
+	Vector3 worldPos = GetWorldPosition();
 
 	AABB aabb;
 

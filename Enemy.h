@@ -17,6 +17,8 @@ public:
 
 	void Draw();
 
+	Vector3 GetWorldPosition() const;
+
 	AABB GetAABB();
 
 	// 衝突応答

@@ -518,15 +518,20 @@ AABB Player::GetAABB()
 	return aabb;
 }
 
-// 追加：敵と衝突したときの応答処理
+// 敵と衝突したときの応答処理
 void Player::OnCollision(const Enemy* enemy) {
 	(void)enemy;
 
-	// ジャンプ開始（Y軸方向へ初速を加算）
-	velocity_.y = 0.35f;
+	// デスフラグを立てる
+	isDead_ = true;
+
 }
 
 void Player::Draw() {
+	if (isDead_) {
+		return;
+	}
+
 	model_->PreDraw();
 
 	model_->Draw(worldTransform_, *camera_);

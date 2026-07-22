@@ -47,6 +47,9 @@ public:
 		kLeft,
 	};
 
+	// デスフラグのgetter
+	bool IsDead() const { return isDead_; }
+
 private:
 
 	void Move();
@@ -119,5 +122,7 @@ private:
 
 	static inline const float kBlank = 0.0f;
 
+	//デスフラグ
+	bool isDead_ = false;
 
 };
