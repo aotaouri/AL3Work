@@ -9,6 +9,7 @@
 #include "Phase.h"
 #include "Player.h"
 #include "TitleScene.h"
+#include "Fade.h"
 
 using namespace KamataEngine;
 
@@ -57,7 +58,7 @@ void GameScene::Initialize() {
 	cameraController_->SetMovableArea(area);
 	cameraController_->Reset();
 
-	// 天球の生成」
+	// 天球の生成
 	Skydome_ = new Skydome();
 	// 天球の初期化
 	Skydome_->Initialize(modelSkydome_, camera_);
@@ -68,8 +69,11 @@ void GameScene::Initialize() {
 	debugCamera_ = new KamataEngine::DebugCamera(1280, 720);
 	isDebugCameraActive_ = false;
 
-	// ゲームプレイフェーズから開始
-	phase_ = Phase::kPlay;
+	fade_ = new Fade();
+	fade_->Initialize();
+
+	phase_ = Phase::kFadeIn;
+	fade_->Start(Status::FadeIn, kFadeDuration);
 }
 
 void GameScene::GenerateBlocks() {
@@ -125,9 +129,13 @@ void GameScene::CheckAllCollisions() {
 
 void GameScene::Update() {
 
+	// ★ フェードの更新
+	fade_->Update();
+
 	ChangePhase();
 
 	switch (phase_) {
+	case Phase::kFadeIn:
 	case Phase::kPlay:
 
 		Skydome_->Update();
@@ -247,6 +255,12 @@ void GameScene::ChangePhase()
 {
 	switch (phase_) 
 	{
+	case Phase::kFadeIn:
+		// ★ フェードイン完了でゲームプレイ開始
+		if (fade_->IsFinished()) {
+			phase_ = Phase::kPlay;
+		}
+		break;
 	case Phase::kPlay:
 
 		// 自キャラがデス状態
@@ -267,11 +281,18 @@ void GameScene::ChangePhase()
 
 		if (deathParticles_ && deathParticles_->IsFinished())
 		{
+			fade_->Start(Status::FadeOut, kFadeDuration);
 			finished_ = true;
 		}
 
 		break;
-	
+		case Phase::kFadeOut:
+		// ★ フェードアウト完了でシーン終了
+		if (fade_->IsFinished()) {
+			finished_ = true;
+		}
+		break;
+
 	}
 }
 
@@ -305,10 +326,14 @@ void GameScene::Draw() {
 	for (Enemy* enemy : enemies_) {
 		enemy->Draw();
 	}
+
+	fade_->Draw();
+
 }
 
 GameScene::~GameScene() {
 
+	delete fade_;
 	delete player_;
 	delete cameraController_;
 	delete Skydome_;

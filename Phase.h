@@ -1,7 +1,7 @@
 #pragma once
 enum class Phase {
+kFadeIn,
 kPlay, //ゲームプレイ
 kDeath, //デス演出
+kFadeOut,
 };
-//ゲームの現在フェーズ
-Phase phase_;

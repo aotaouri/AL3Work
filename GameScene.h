@@ -7,12 +7,16 @@
 #include "CameraController.h"
 #include "Enemy.h"
 #include "DeathParticles.h"
+#include "Fade.h"
+#include "Phase.h"
 
 using namespace KamataEngine;
 
 class GameScene {
 
 public:
+
+
 	~GameScene();
 
 	void Initialize();
@@ -31,6 +35,15 @@ public:
 	bool IsFinished() const { return finished_; }
 
 private:
+
+	// フェード時間定数（1.0秒）
+	static inline const float kFadeDuration = 1.0f;
+
+	// ★ 現在のフェーズ
+	Phase phase_ = Phase::kFadeIn;
+
+	// ★ フェードオブジェクト
+	Fade* fade_ = nullptr;
 
 	// 3Dモデル
 	//プレイヤー

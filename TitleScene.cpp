@@ -2,6 +2,7 @@
 #include "KamataEngine.h" 
 #include "MyMath.h"
 #include <numbers>
+#include "Fade.h"
 
 using namespace KamataEngine;
 
@@ -16,6 +17,13 @@ void TitleScene::Initialize()
 
 	camera_.Initialize();
 	camera_.translation_.z = -20.0f;
+
+	fade_ = new Fade();
+	fade_->Initialize();
+
+	phase_ = Phase::kFadeIn;
+	fade_->Start(Status::FadeIn, kFadeDuration);
+
 }
 
 void TitleScene::Update() 
@@ -46,6 +54,33 @@ void TitleScene::Update()
 		finished_ = true;
 	}
 
+	fade_->Update();
+
+	// フェーズごとの処理分岐
+	switch (phase_) {
+	case Phase::kFadeIn:
+		// フェードインが終わったらメインフェーズへ
+		if (fade_->IsFinished()) {
+			phase_ = Phase::kMain;
+		}
+		break;
+
+	case Phase::kMain:
+		// スペースキーが押されたらフェードアウトを開始してフェードアウトフェーズへ
+		if (Input::GetInstance()->PushKey(DIK_SPACE)) {
+			fade_->Start(Status::FadeOut, kFadeDuration);
+			phase_ = Phase::kFadeOut;
+		}
+		break;
+
+	case Phase::kFadeOut:
+		// フェードアウトが終わったらタイトルシーンを終了
+		if (fade_->IsFinished()) {
+			finished_ = true;
+		}
+		break;
+	}
+
 }
 
 void TitleScene::Draw() 
@@ -53,6 +88,11 @@ void TitleScene::Draw()
 	Model::PreDraw();
 	playerModel_->Draw(worldTransformPlayer_,camera_);
 	titleModel_->Draw(worldTransformTitle_, camera_);
-
+	fade_->Draw();
 	Model::PostDraw();
+}
+
+TitleScene::~TitleScene()
+{ 
+	delete fade_;
 }
