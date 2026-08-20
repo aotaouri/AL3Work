@@ -8,6 +8,8 @@ using namespace KamataEngine;
 enum class MapChipType {
 	kBlank, // 空白
 	kBlock, // ブロック
+	kEnemy, // 2: 敵
+	kFlyingEnemy, // 3: 上下する敵
 };
 
 struct MapChipData {

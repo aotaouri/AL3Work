@@ -16,6 +16,7 @@ using namespace KamataEngine;
 void GameScene::Initialize() {
 
 	modelblock_ = KamataEngine::Model::CreateFromOBJ("block", true);
+
 	// 3Dモデルの生成(天球)
 	modelSkydome_ = KamataEngine::Model::CreateFromOBJ("skydome", true);
 	modelplayer_ = KamataEngine::Model::CreateFromOBJ("player", true);
@@ -42,10 +43,12 @@ void GameScene::Initialize() {
 	
 	modelDeathParticle_ = Model::CreateFromOBJ("deathParticle", true);
 
-	for (int32_t i = 0; i < 3; ++i) {
+	for (int32_t i = 0; i < 1; ++i) {
 		Enemy* newEnemy = new Enemy();
-		Vector3 enemyPosition = mapChipField_->GetMapChipPositionByIndex(10 + i * 2, 18);
+		Vector3 enemyPosition = mapChipField_->GetMapChipPositionByIndex(28 + i * 2, 7);
 		newEnemy->Initialize(modelenemy_, camera_, enemyPosition);
+
+		newEnemy->SetMapChipField(mapChipField_);
 
 		enemies_.push_back(newEnemy);
 	}
@@ -64,6 +67,7 @@ void GameScene::Initialize() {
 	Skydome_->Initialize(modelSkydome_, camera_);
 
 	GenerateBlocks();
+	GenerateEnemies();
 
 	// デバッグカメラの生成
 	debugCamera_ = new KamataEngine::DebugCamera(1280, 720);
@@ -111,18 +115,24 @@ void GameScene::CheckAllCollisions() {
 	// 自キャラの座標
 	aabb1 = player_->GetAABB();
 
-	// 自キャラと敵弾全ての当たり判定
+	// ① 通常の敵（Enemy）との当たり判定
 	for (Enemy* enemy : enemies_) {
-		// 敵弾の座標
 		aabb2 = enemy->GetAABB();
 
 		// AABB同士の交差判定
 		if (IsCollision(aabb1, aabb2)) {
-
-			// 自キャラの衝突時関数を呼び出す
 			player_->OnCollision(enemy);
-			// 敵の衝突時関数を呼び出す
 			enemy->OnCollision(player_);
+		}
+	} // ★ ここで Enemy のループを閉じる
+
+	// ② 上下する敵（FlyingEnemy）との当たり判定（変数名を flyingEnemy に変更）
+	for (FlyingEnemy* flyingEnemy : flyingEnemies_) {
+		aabb2 = flyingEnemy->GetAABB();
+
+		if (IsCollision(aabb1, aabb2)) {
+			player_->OnCollision(flyingEnemy);
+			flyingEnemy->OnCollision(player_);
 		}
 	}
 }
@@ -145,6 +155,10 @@ void GameScene::Update() {
 
 		// 敵
 		for (Enemy* enemy : enemies_) {
+			enemy->Update();
+		}
+
+		for (FlyingEnemy* enemy : flyingEnemies_) {
 			enemy->Update();
 		}
 
@@ -227,16 +241,7 @@ void GameScene::Update() {
 		break;
 	}
 
-	
 
-
-#ifdef _DEBUG
-
-	if (KamataEngine::Input::GetInstance()->TriggerKey(DIK_E)) {
-		isDebugCameraActive_ = !isDebugCameraActive_;
-	}
-
-#endif
 
 	// カメラの処理
 	if (isDebugCameraActive_) {
@@ -249,6 +254,33 @@ void GameScene::Update() {
 		// ビュープロジェンクション行列の更新と転送
 	}
 
+}
+
+void GameScene::GenerateEnemies() {
+	uint32_t numBlockVertical = mapChipField_->GetNumBlockVirtical();
+	uint32_t numBlockHorizontal = mapChipField_->GetNumBlockHorizontal();
+
+	for (uint32_t i = 0; i < numBlockVertical; ++i) {
+		for (uint32_t j = 0; j < numBlockHorizontal; ++j) {
+
+			// 2: 歩く敵
+			if (mapChipField_->GetMapChipTypeByIndex(j, i) == MapChipType::kEnemy) {
+				Enemy* newEnemy = new Enemy();
+				Vector3 enemyPosition = mapChipField_->GetMapChipPositionByIndex(j, i);
+				newEnemy->Initialize(modelenemy_, camera_, enemyPosition);
+				newEnemy->SetMapChipField(mapChipField_);
+				enemies_.push_back(newEnemy);
+			}
+			// 3: 上下する敵（★追加）
+			else if (mapChipField_->GetMapChipTypeByIndex(j, i) == MapChipType::kFlyingEnemy) {
+				FlyingEnemy* newEnemy = new FlyingEnemy();
+				Vector3 enemyPosition = mapChipField_->GetMapChipPositionByIndex(j, i);
+				newEnemy->Initialize(modelenemy_, camera_, enemyPosition); // 同じモデルを使用
+				newEnemy->SetMapChipField(mapChipField_);
+				flyingEnemies_.push_back(newEnemy);
+			}
+		}
+	}
 }
 
 void GameScene::ChangePhase()
@@ -281,8 +313,8 @@ void GameScene::ChangePhase()
 
 		if (deathParticles_ && deathParticles_->IsFinished())
 		{
+			phase_ = Phase::kFadeOut; // ★ フェーズを切り替える
 			fade_->Start(Status::FadeOut, kFadeDuration);
-			finished_ = true;
 		}
 
 		break;
@@ -327,6 +359,11 @@ void GameScene::Draw() {
 		enemy->Draw();
 	}
 
+	// Draw() 内
+	for (FlyingEnemy* enemy : flyingEnemies_) {
+		enemy->Draw();
+	}
+
 	fade_->Draw();
 
 }
@@ -349,6 +386,12 @@ GameScene::~GameScene() {
 		delete enemy;
 	}
 	enemies_.clear();
+
+	for (FlyingEnemy* enemy : flyingEnemies_) {
+		delete enemy;
+	}
+	flyingEnemies_.clear();
+
 
 	for (std::vector<KamataEngine::WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
 

@@ -9,6 +9,7 @@
 #include "DeathParticles.h"
 #include "Fade.h"
 #include "Phase.h"
+#include "FlyingEnemy.h"
 
 using namespace KamataEngine;
 
@@ -36,6 +37,8 @@ public:
 
 private:
 
+	void GenerateEnemies();
+
 	// フェード時間定数（1.0秒）
 	static inline const float kFadeDuration = 1.0f;
 
@@ -52,6 +55,9 @@ private:
 	//敵
 	KamataEngine::Model* modelenemy_ = nullptr;
 
+	//飛ぶ敵
+	KamataEngine::Model* flyingEnemyModel_ = nullptr;
+
 	//ブロック
 	KamataEngine::Model* modelblock_ = nullptr;
 
@@ -65,6 +71,8 @@ private:
 	Player* player_ = nullptr;
 
 	std::list<Enemy*> enemies_;
+
+	std::list<FlyingEnemy*> flyingEnemies_;
 
 	std::vector<std::vector<KamataEngine::WorldTransform*>> worldTransformBlocks_;
 

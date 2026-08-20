@@ -527,6 +527,11 @@ void Player::OnCollision(const Enemy* enemy) {
 
 }
 
+void Player::OnCollision(const FlyingEnemy* flyingEnemy) {
+	(void)flyingEnemy; // 未使用引数の警告防止
+	isDead_ = true;    // デスフラグを立てる
+}
+
 void Player::Draw() {
 	if (isDead_) {
 		return;

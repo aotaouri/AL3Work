@@ -14,6 +14,8 @@ namespace {
 std::map<std::string, MapChipType> mapChipTable = {
     {"0", MapChipType::kBlank},
     {"1", MapChipType::kBlock},
+    {"2", MapChipType::kEnemy},
+    {"3", MapChipType::kFlyingEnemy},
 };
 
 }
@@ -78,11 +80,11 @@ Vector3 MapChipField::GetMapChipPositionByIndex(uint32_t xIndex, uint32_t yIndex
 IndexSet MapChipField::GetMapChipIndexSetByPosition(const Vector3& position) {
 	IndexSet indexSet = {};
 
-	// 1. ⭐️X座標から列番号(xIndex)を逆算する
+	// 1.X座標から列番号(xIndex)を逆算する
 	// X座標を1マスの幅で割り算します
 	indexSet.xIndex = static_cast<uint32_t>((position.x + kBlockWidth / 2) / kBlockWidth);
 
-	// 2. ⭐️Y座標から行番号(yIndex)を逆算する
+	// 2.Y座標から行番号(yIndex)を逆算する
 	// 2Dの配列（上から0行、1行...）と3D空間（上がYプラス）の上下反転を考慮した逆算式です
 	indexSet.yIndex = static_cast<uint32_t>((kNumBlockVirtical - 1) - (position.y - kBlockHeight / 2) / kBlockHeight);
 
@@ -97,7 +99,7 @@ Lect MapChipField::GetRectByIndex(uint32_t xIndex, uint32_t yIndex) {
 	// 左辺の座標
 	rect.left = center.x - kBlockWidth / 2.0f;
 
-	// ⭐️【最新スライド 17:52:20 の実装】
+	
 	rect.right = center.x + kBlockWidth / 2.0f;
 	rect.bottom = center.y - kBlockHeight / 2.0f;
 	rect.top = center.y + kBlockHeight / 2.0f;
