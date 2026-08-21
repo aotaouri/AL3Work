@@ -35,9 +35,13 @@ public:
 
 	bool IsFinished() const { return finished_; }
 
+	bool IsClear() const { return isClear_; }
+
 private:
 
 	void GenerateEnemies();
+
+	void GenerateClearItems();
 
 	// フェード時間定数（1.0秒）
 	static inline const float kFadeDuration = 1.0f;
@@ -51,6 +55,9 @@ private:
 	// 3Dモデル
 	//プレイヤー
 	KamataEngine::Model* modelplayer_ = nullptr;
+
+	//クリアアイテム
+	KamataEngine::Model* modelClearItem_ = nullptr;
 
 	//敵
 	KamataEngine::Model* modelenemy_ = nullptr;
@@ -97,5 +104,18 @@ private:
 
 	// 終了フラグ
 	bool finished_ = false;
+
+    KamataEngine::WorldTransform* worldTransformClearItem_ = nullptr;
+	bool isClearItemSpawned_ = false;
+	bool isItemCollected_ = false;
+
+	bool isClear_ = false;
+
+	// ★ 複数管理のために vector に変更
+	std::vector<KamataEngine::WorldTransform*> worldTransformClearItems_;
+	std::vector<bool> itemCollectedFlags_; // アイテムごとの取得フラグ
+
+	int32_t totalItemCount_ = 0;     // マップ上の総アイテム数
+	int32_t collectedItemCount_ = 0; // 取得したアイテムの数
 
 };

@@ -16,6 +16,7 @@ std::map<std::string, MapChipType> mapChipTable = {
     {"1", MapChipType::kBlock},
     {"2", MapChipType::kEnemy},
     {"3", MapChipType::kFlyingEnemy},
+    {"4", MapChipType::kClearItem  },
 };
 
 }

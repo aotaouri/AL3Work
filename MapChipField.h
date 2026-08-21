@@ -10,6 +10,7 @@ enum class MapChipType {
 	kBlock, // ブロック
 	kEnemy, // 2: 敵
 	kFlyingEnemy, // 3: 上下する敵
+	kClearItem = 4,//アイテム
 };
 
 struct MapChipData {
