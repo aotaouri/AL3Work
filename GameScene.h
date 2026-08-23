@@ -43,6 +43,8 @@ private:
 
 	void GenerateClearItems();
 
+	void GenerateBgObjects(); // 背景オブジェクト生成関数
+
 	// フェード時間定数（1.0秒）
 	static inline const float kFadeDuration = 1.0f;
 
@@ -70,6 +72,10 @@ private:
 
 	//デスパーティクル
 	KamataEngine::Model* modelDeathParticle_ = nullptr;
+
+	// --- 背景用オブジェクト ---
+	KamataEngine::Model* modelBgObject_ = nullptr;
+	std::vector<KamataEngine::WorldTransform*> worldTransformBgObjects_;
 
 	// カメラ
 	KamataEngine::Camera* camera_;

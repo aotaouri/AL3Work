@@ -22,6 +22,9 @@ void GameScene::Initialize() {
 	modelplayer_ = KamataEngine::Model::CreateFromOBJ("player", true);
 	modelenemy_ = KamataEngine::Model::CreateFromOBJ("enemy", true);
 
+	// 背景モデルの読み込み (例: "bg_tree" や "bg_mountain" など)
+	modelBgObject_ = KamataEngine::Model::CreateFromOBJ("enemy", true);
+
 	// カメラ
 	camera_ = new KamataEngine::Camera();
 	camera_->farZ = 1000.0f;
@@ -40,6 +43,7 @@ void GameScene::Initialize() {
 
 	player_->SetMapChipField(mapChipField_);
 
+	//クリアアイテムのモデル
 	modelClearItem_ = KamataEngine::Model::CreateFromOBJ("enemy", true); // モデル名に合わせて変更
 	
 	modelDeathParticle_ = Model::CreateFromOBJ("deathParticle", true);
@@ -67,9 +71,12 @@ void GameScene::Initialize() {
 	// 天球の初期化
 	Skydome_->Initialize(modelSkydome_, camera_);
 
+	// 背景オブジェクトの生成
+	GenerateBgObjects();
 	GenerateBlocks();
 	GenerateEnemies();
 	GenerateClearItems();
+
 
 	// デバッグカメラの生成
 	debugCamera_ = new KamataEngine::DebugCamera(1280, 720);
@@ -80,6 +87,30 @@ void GameScene::Initialize() {
 
 	phase_ = Phase::kFadeIn;
 	fade_->Start(Status::FadeIn, kFadeDuration);
+}
+
+void GameScene::GenerateBgObjects() {
+	// 手動で好きな位置に配置する場合（Z軸を奥にずらすのがポイント！）
+	// 例：プレイヤーやゲーム面(Z: 0.0f)より奥の Z: 5.0f や 10.0f に配置
+	std::vector<Vector3> bgPositions = {
+	    {5.0f,  2.0f, 10.0f},
+	    {15.0f, 3.0f, 10.0f},
+	    {30.0f, 2.0f, 12.0f},
+	    {50.0f,  2.0f, 10.0f},
+	    {75.0f, 3.0f, 10.0f},
+	    {100.0f, 2.0f, 12.0f},
+	};
+
+	for (const Vector3& pos : bgPositions) {
+		KamataEngine::WorldTransform* transform = new KamataEngine::WorldTransform();
+		transform->Initialize();
+		transform->translation_ = pos;
+
+		// 必要に応じてサイズ変更や回転も設定可能
+		// transform->scale_ = { 2.0f, 2.0f, 2.0f };
+
+		worldTransformBgObjects_.push_back(transform);
+	}
 }
 
 void GameScene::GenerateBlocks() {
@@ -171,6 +202,24 @@ void GameScene::Update() {
 	case Phase::kPlay:
 
 		Skydome_->Update();
+
+
+		// Update() 内の「Skydome_->Update();」の下あたりに追加
+		for (KamataEngine::WorldTransform* bgTransform : worldTransformBgObjects_) {
+			if (!bgTransform)
+				continue;
+
+			KamataEngine::Matrix4x4 translationMatrix = MakeTranslateMatrix(bgTransform->translation_);
+			KamataEngine::Matrix4x4 rotationMatrix = MakeRotationMatrix(bgTransform->rotation_);
+			KamataEngine::Matrix4x4 scaleMatrix = MakeScaleMatrix(bgTransform->scale_);
+
+			KamataEngine::Matrix4x4 worldMatrix = Multiply(scaleMatrix, rotationMatrix);
+			worldMatrix = Multiply(worldMatrix, translationMatrix);
+
+			bgTransform->matWorld_ = worldMatrix;
+			bgTransform->TransferMatrix();
+		}
+
 
 		// 自キャラの更新
 		player_->Update();
@@ -403,10 +452,14 @@ void GameScene::Draw() {
 
 	Skydome_->Draw();
 
-	// 自キャラの描画
-	player_->Draw();
-
 	KamataEngine::Model::PreDraw();
+
+	// 2. ★ 背景オブジェクトを真っ先に描画（奥にあるため）
+	if (modelBgObject_) {
+		for (KamataEngine::WorldTransform* bgTransform : worldTransformBgObjects_) {
+			modelBgObject_->Draw(*bgTransform, *camera_);
+		}
+	}
 
 	if (deathParticles_ != nullptr) {
 		deathParticles_->Draw();
@@ -433,6 +486,9 @@ void GameScene::Draw() {
 	}
 
 	KamataEngine::Model::PostDraw();
+
+	// 自キャラの描画
+	player_->Draw();
 
 	// 敵全体の描画
 	for (Enemy* enemy : enemies_) {
@@ -463,6 +519,7 @@ GameScene::~GameScene() {
 	delete deathParticles_;
 	delete modelClearItem_;
 	delete worldTransformClearItem_;
+	delete modelBgObject_;
 
 	// 生成した WorldTransform をすべて解放
 	for (auto* transform : worldTransformClearItems_) {
@@ -479,6 +536,11 @@ GameScene::~GameScene() {
 		delete enemy;
 	}
 	flyingEnemies_.clear();
+
+	for (auto* transform : worldTransformBgObjects_) {
+		delete transform;
+	}
+	worldTransformBgObjects_.clear();
 
 	for (std::vector<KamataEngine::WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
 
