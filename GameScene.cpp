@@ -21,9 +21,10 @@ void GameScene::Initialize() {
 	modelSkydome_ = KamataEngine::Model::CreateFromOBJ("skydome", true);
 	modelplayer_ = KamataEngine::Model::CreateFromOBJ("player", true);
 	modelenemy_ = KamataEngine::Model::CreateFromOBJ("enemy", true);
+	modelflyingEnemy_ = KamataEngine::Model::CreateFromOBJ("FlyingEnemy", true);
 
 	// 背景モデルの読み込み (例: "bg_tree" や "bg_mountain" など)
-	modelBgObject_ = KamataEngine::Model::CreateFromOBJ("enemy", true);
+	modelBgObject_ = KamataEngine::Model::CreateFromOBJ("haikei", true);
 
 	// カメラ
 	camera_ = new KamataEngine::Camera();
@@ -44,7 +45,7 @@ void GameScene::Initialize() {
 	player_->SetMapChipField(mapChipField_);
 
 	//クリアアイテムのモデル
-	modelClearItem_ = KamataEngine::Model::CreateFromOBJ("enemy", true); // モデル名に合わせて変更
+	modelClearItem_ = KamataEngine::Model::CreateFromOBJ("item", true); // モデル名に合わせて変更
 	
 	modelDeathParticle_ = Model::CreateFromOBJ("deathParticle", true);
 
@@ -369,7 +370,10 @@ void GameScene::GenerateEnemies() {
 			else if (mapChipField_->GetMapChipTypeByIndex(j, i) == MapChipType::kFlyingEnemy) {
 				FlyingEnemy* newEnemy = new FlyingEnemy();
 				Vector3 enemyPosition = mapChipField_->GetMapChipPositionByIndex(j, i);
-				newEnemy->Initialize(modelenemy_, camera_, enemyPosition); // 同じモデルを使用
+
+				// ★ ここを modelflyingEnemy_ (または flyingEnemyModel_) に変更！
+				newEnemy->Initialize(modelflyingEnemy_, camera_, enemyPosition);
+
 				newEnemy->SetMapChipField(mapChipField_);
 				flyingEnemies_.push_back(newEnemy);
 			}
@@ -520,6 +524,7 @@ GameScene::~GameScene() {
 	delete modelClearItem_;
 	delete worldTransformClearItem_;
 	delete modelBgObject_;
+	delete modelflyingEnemy_;
 
 	// 生成した WorldTransform をすべて解放
 	for (auto* transform : worldTransformClearItems_) {

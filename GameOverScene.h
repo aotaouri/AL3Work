@@ -18,4 +18,16 @@ public:
 private:
 	// 終了フラグ
 	bool finished_ = false;
+
+	// カメラ
+	KamataEngine::Camera* camera_ = nullptr;
+
+	// 3Dモデルデータ
+	KamataEngine::Model* modelGameOver_ = nullptr;
+
+	// トランスフォーム (位置・回転・縮小)
+	KamataEngine::WorldTransform worldTransformGameOver_;
+
+	KamataEngine::WorldTransform worldTransform_;
+
 };

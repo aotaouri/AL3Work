@@ -65,7 +65,7 @@ private:
 	KamataEngine::Model* modelenemy_ = nullptr;
 
 	//飛ぶ敵
-	KamataEngine::Model* flyingEnemyModel_ = nullptr;
+	KamataEngine::Model* modelflyingEnemy_ = nullptr;
 
 	//ブロック
 	KamataEngine::Model* modelblock_ = nullptr;

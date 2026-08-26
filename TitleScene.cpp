@@ -12,7 +12,7 @@ void TitleScene::Initialize()
 	worldTransformPlayer_.Initialize();
 	worldTransformPlayer_.rotation_.y = std::numbers::pi_v<float>;
 
-	titleModel_ = Model::CreateFromOBJ("titleFont",true);
+	titleModel_ = Model::CreateFromOBJ("TITLE",true);
 	worldTransformTitle_.Initialize();
 
 	camera_.Initialize();
@@ -86,7 +86,7 @@ void TitleScene::Update()
 void TitleScene::Draw() 
 {
 	Model::PreDraw();
-	playerModel_->Draw(worldTransformPlayer_,camera_);
+	//playerModel_->Draw(worldTransformPlayer_,camera_);
 	titleModel_->Draw(worldTransformTitle_, camera_);
 	fade_->Draw();
 	Model::PostDraw();

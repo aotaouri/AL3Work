@@ -36,7 +36,7 @@ void DrawScene();
 int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
 	// エンジンの初期化
-	Initialize(L"LE2D_01_アオタ_オウリ_AL3");
+	Initialize(L"LE2D_01_アオタ_オウリ_メダルトレジャー");
 
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
 

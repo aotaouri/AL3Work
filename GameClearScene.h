@@ -14,4 +14,14 @@ public:
 
 private:
 	bool finished_ = false;
+
+	// カメラ
+	KamataEngine::Camera* camera_ = nullptr;
+
+	// 3Dモデルデータ
+	KamataEngine::Model* modelClear_ = nullptr;
+
+	// ワールドトランスフォーム
+	KamataEngine::WorldTransform worldTransform_;
+
 };
