@@ -16,6 +16,7 @@ struct CollisionMapInfo {
 };
 
 class Enemy;
+class FlyingEnemy;
 
 class Player {
 
@@ -40,6 +41,7 @@ public:
 
 	// 衝突応答
 	void OnCollision(const Enemy* enemy);
+	void OnCollision(const FlyingEnemy* flyingEnemy);
 
 	// 方向を表すenum
 	enum class LRDirection {
@@ -97,7 +99,7 @@ private:
 	// 着地時の速度減速
 	static inline const float kAttenuationLanding = 0.2f;
 
-	static inline const float kLimitRunSpeed = 0.5f;
+	static inline const float kLimitRunSpeed = 0.3f;
 
 	LRDirection lrDirection_ = LRDirection::kRight;
 
@@ -115,7 +117,7 @@ private:
 	bool onGround_ = true;
 	static inline const float kGravityAcceleration = 0.05f;
 	static inline const float kLimitFallSpeed = 1.0f;
-	static inline const float kJumpAcceleration = 1.0f;
+	static inline const float kJumpAcceleration = 0.8f;
 
     static inline const float kWidth = 0.8f;
 	static inline const float kHeight = 0.8f;

@@ -45,6 +45,6 @@ private:
 
 	static inline const float kVelocityBias = 0.2f;
 
-	static inline const Rect kMargin = {-4.0f, 4.0f, -2.0f, 5.0f};
+	static inline const Rect kMargin = {-4.0f, 4.0f, -2.0f, -6.5f};
 
 };
