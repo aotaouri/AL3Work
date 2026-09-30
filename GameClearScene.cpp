@@ -32,8 +32,6 @@ void GameClearScene::Update() {
 		finished_ = true;
 	}
 
-
-
 	// Y軸回転＋ぴょんぴょん跳ねるクリア演出
 	static float timer = 0.0f;
 	timer += 0.05f;
